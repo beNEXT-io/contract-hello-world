@@ -18,3 +18,6 @@ Cargo.lock
 
 # Ignore VScode files
 /.vscode/
+
+# Ignore sam build and cache files
+/.aws-sam/
