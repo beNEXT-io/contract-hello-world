@@ -1,0 +1,6 @@
+{
+    "$class": "org.accordproject.helloworld.HelloWorldClause",
+    "name": "Fred Blogs",
+    "clauseId": "029212db-1e3b-46eb-992d-1c8db5ee812a",
+    "$identifier": "029212db-1e3b-46eb-992d-1c8db5ee812a"
+}
