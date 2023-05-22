@@ -27,6 +27,19 @@ impl MyResponseImpl {
     }
 }
 
+pub struct MyRequestImpl(MyRequest);
+
+impl MyRequestImpl {
+    fn new(input: String, _timestamp: DateTime<Utc>) -> Result<MyRequest, Error> {
+        let _class = "org.accordproject.helloworld.MyRequest".to_owned();
+        Ok(MyRequest {
+            _class,
+            input,
+            _timestamp,
+        })
+    }
+}
+
 pub fn logic(request: MyRequest) -> Result<MyResponse, Error> {
     let path = "/home/sk/contract-hello-world/rust_app/src/data.json";
     let contract = Contract::new(path)?;

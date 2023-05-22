@@ -1,18 +1,18 @@
-use lambda_runtime::Error as LambdaError;
+use lambda_runtime::Error;
 use lambda_runtime::{run, service_fn, LambdaEvent};
 use lib::org_accordproject_helloworld::MyRequest;
 use serde::{Deserialize, Serialize};
-use serde_json::{json, Error, Value};
+use serde_json::{json, Value};
 
 pub mod logic;
-use logic::logic;
+use logic::{logic, MyRequestImpl};
 
 /// This is a made-up example. Requests come into the runtime as unicode
 /// strings in json format, which can map to any structure that implements `serde::Deserialize`
 /// The runtime pays no attention to the contents of the request payload.
 #[derive(Deserialize, Serialize, Debug)]
 struct Request {
-    input: String,
+    request: Value,
 }
 
 /// This is a made-up example of what a response structure may look like.
@@ -21,7 +21,7 @@ struct Request {
 /// to the contents of the response payload.
 #[derive(Serialize, Deserialize, Debug)]
 struct Response {
-    output: String,
+    response: String,
 }
 
 fn into_valid_response(response: Response) -> Result<Value, Error> {
@@ -29,7 +29,7 @@ fn into_valid_response(response: Response) -> Result<Value, Error> {
         "isBase64Encoded": false,
         "statusCode": 200,
         "headers": { },
-        "body": response.output
+        "body": response.response
 
     }))
 }
@@ -40,16 +40,20 @@ fn into_valid_response(response: Response) -> Result<Value, Error> {
 /// - https://github.com/awslabs/aws-lambda-rust-runtime/tree/main/examples
 /// - https://github.com/aws-samples/serverless-rust-demo/
 async fn function_handler(event: LambdaEvent<Value>) -> Result<Value, Error> {
-    let (event, _context) = event.into_parts();
+    let (event, _) = event.into_parts();
+    let request = Request {
+        request: event["body"].clone(),
+    };
 
-    let parsed_body: Request = serde_json::from_value(event["body"].clone()).map_err(Into::into)?;
+    let input = request.request["input"].to_string();
+    let _timestamp = request.request["$timestamp"].p
 
     let response = {
-        let my_request: MyRequest = serde_json::from_str(&parsed_body.input)?;
+        let my_request: MyRequest = 
         let my_response = logic(my_request)?;
         let string_response = serde_json::to_string(&my_response)?;
         Response {
-            output: string_response,
+            response: string_response,
         }
     };
 
@@ -57,7 +61,7 @@ async fn function_handler(event: LambdaEvent<Value>) -> Result<Value, Error> {
 }
 
 #[tokio::main]
-async fn main() -> Result<(), LambdaError> {
+async fn main() -> Result<(), Error> {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         // disable printing the name of the module in every log line.

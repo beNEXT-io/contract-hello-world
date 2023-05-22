@@ -21,3 +21,7 @@ Cargo.lock
 
 # Ignore sam build and cache files
 /.aws-sam/
+
+# Ignore target builds
+debug/
+target/
