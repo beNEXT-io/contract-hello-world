@@ -1,8 +1,8 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: 'contract-hello-world
+Description: 'hello-world
 
-  Sample SAM Template for contract-hello-world
+  Sample SAM Template for hello-world
 
   '
 Globals:
@@ -26,17 +26,67 @@ Resources:
       Runtime: provided.al2
       Architectures:
       - x86_64
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: post
+  MyApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: MyApi
+  HelloWorldResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      RestApiId:
+        Ref: MyApi
+      ParentId:
+        Fn::GetAtt:
+        - MyApi
+        - RootResourceId
+      PathPart: hello
+  HelloWorldMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      RestApiId:
+        Ref: MyApi
+      ResourceId:
+        Ref: HelloWorldResource
+      HttpMethod: POST
+      AuthorizationType: NONE
+      Integration:
+        Type: AWS
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${HelloWorldFunction.Arn}/invocations
+        IntegrationResponses:
+        - StatusCode: 200
+          ResponseTemplates:
+            application/json: ''
+        RequestTemplates:
+          application/json: "{\n  \"request\" : $input.json('$.request'),\n  \"data\"\
+            \ : $input.json('$.data')\n}\n"
+      MethodResponses:
+      - StatusCode: 200
+  HelloWorldFunctionInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName:
+        Fn::GetAtt:
+        - HelloWorldFunction
+        - Arn
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${MyApi}/*/*/*
+  HelloWorldDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: HelloWorldMethod
+    Properties:
+      RestApiId:
+        Ref: MyApi
+      Description: Deploy MyApi
+      StageName: Prod
 Outputs:
   HelloWorldApi:
     Description: API Gateway endpoint URL for Prod stage for Hello World function
     Value:
-      Fn::Sub: https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
+      Fn::Sub: https://${MyApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/
   HelloWorldFunction:
     Description: Hello World Lambda Function ARN
     Value:
