@@ -5,16 +5,52 @@ use chrono::Utc;
 use lib::org_accordproject_helloworld::*;
 
 #[derive(Deserialize, Serialize, Debug)]
-struct Request {
-    request: MyRequest
+pub enum RequestType {
+    MyRequest(MyRequest),
+    HelloWorldClause(HelloWorldClause),
+    // Add other request types here
 }
 
-async fn function_handler(event: LambdaEvent<Request>) -> Result<MyResponse, Error> {
+#[derive(Deserialize, Serialize, Debug)]
+pub enum ResponseType {
+    MyResponse(MyResponse),
+    HelloWorldClause(HelloWorldClause),
+    // Add other response types here
+}
 
-    let response = MyResponse {
-        _class: event.payload.request._class.clone(),
-        output: format!("Hello Fred! {}", event.payload.request.input),
-        _timestamp: Utc::now(),
+#[derive(Deserialize, Serialize, Debug)]
+struct Request {
+    request: RequestType,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+struct Response {
+    resonse: ResponseType,
+}
+
+
+async fn function_handler(event: LambdaEvent<Request>) -> Result<ResponseType, Error> {
+
+    let response = match event.payload.request {
+        RequestType::MyRequest(my_request) => {
+            ResponseType::MyResponse(
+                MyResponse {
+                    _class: my_request._class,
+                    output: format!("MyRequest - input = {}", my_request.input),
+                    _timestamp: Utc::now()
+                }       
+            )
+        },
+        RequestType::HelloWorldClause(hello_world_clause) => {
+            ResponseType::HelloWorldClause(
+                HelloWorldClause {
+                    _class: hello_world_clause._class,
+                    clause_id: hello_world_clause.clause_id,
+                    _identifier: hello_world_clause._identifier,
+                    name: hello_world_clause.name
+                }       
+            )
+        },
     };
 
     Ok(response)
