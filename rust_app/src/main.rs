@@ -23,32 +23,34 @@ struct Request {
     request: RequestType,
 }
 
-async fn function_handler(event: LambdaEvent<Request>) -> Result<ResponseType, Error> {
+fn handle_my_request(my_request: MyRequest) -> MyResponse {
+    MyResponse {
+        _class: my_request._class,
+        output: format!("MyRequest - input = {}", my_request.input),
+        _timestamp: Utc::now()
+    }       
+}
 
+fn handle_hello_world_clause(hello_world_clause: HelloWorldClause) -> HelloWorldClause {
+    HelloWorldClause {
+        _class: hello_world_clause._class,
+        clause_id: hello_world_clause.clause_id,
+        _identifier: hello_world_clause._identifier,
+        name: hello_world_clause.name
+    }       
+}
+
+async fn function_handler(event: LambdaEvent<Request>) -> Result<ResponseType, Error> {
     let response = match event.payload.request {
-        RequestType::MyRequest(my_request) => {
-            ResponseType::MyResponse(
-                MyResponse {
-                    _class: my_request._class,
-                    output: format!("MyRequest - input = {}", my_request.input),
-                    _timestamp: Utc::now()
-                }       
-            )
-        },
-        RequestType::HelloWorldClause(hello_world_clause) => {
-            ResponseType::HelloWorldClause(
-                HelloWorldClause {
-                    _class: hello_world_clause._class,
-                    clause_id: hello_world_clause.clause_id,
-                    _identifier: hello_world_clause._identifier,
-                    name: hello_world_clause.name
-                }       
-            )
-        },
+        RequestType::MyRequest(my_request) 
+            => ResponseType::MyResponse(handle_my_request(my_request)),
+        RequestType::HelloWorldClause(hello_world_clause) 
+            => ResponseType::HelloWorldClause(handle_hello_world_clause(hello_world_clause)),
     };
 
     Ok(response)
 }
+
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
