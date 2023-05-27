@@ -23,12 +23,6 @@ struct Request {
     request: RequestType,
 }
 
-#[derive(Deserialize, Serialize, Debug)]
-struct Response {
-    resonse: ResponseType,
-}
-
-
 async fn function_handler(event: LambdaEvent<Request>) -> Result<ResponseType, Error> {
 
     let response = match event.payload.request {
