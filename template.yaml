@@ -55,8 +55,7 @@ Resources:
         RequestTemplates:
           application/json: |
             {
-              "request" : $input.json('$.request'),
-              "data" : $input.json('$.data')
+              "request" : $input.json('$.request')
             }
       MethodResponses:
         - StatusCode: 200

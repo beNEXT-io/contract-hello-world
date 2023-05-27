@@ -59,8 +59,7 @@ Resources:
           ResponseTemplates:
             application/json: ''
         RequestTemplates:
-          application/json: "{\n  \"request\" : $input.json('$.request'),\n  \"data\"\
-            \ : $input.json('$.data')\n}\n"
+          application/json: "{\n  \"request\" : $input.json('$.request')\n}\n"
       MethodResponses:
       - StatusCode: 200
   HelloWorldFunctionInvokePermission:

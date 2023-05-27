@@ -6,15 +6,14 @@ use lib::org_accordproject_helloworld::*;
 
 #[derive(Deserialize, Serialize, Debug)]
 struct Request {
-    data: HelloWorldClause,
     request: MyRequest
 }
 
 async fn function_handler(event: LambdaEvent<Request>) -> Result<MyResponse, Error> {
 
     let response = MyResponse {
-        _class: event.payload.data._class.clone(),
-        output: format!("Hello {}! {}", event.payload.data.name, event.payload.request.input),
+        _class: event.payload.request._class.clone(),
+        output: format!("Hello Fred! {}", event.payload.request.input),
         _timestamp: Utc::now(),
     };
 
