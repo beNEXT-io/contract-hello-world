@@ -33,7 +33,12 @@ fn handle_my_request(my_request: MyRequest) -> MyResponse {
     }
 }
 
-async fn handle_hello_world_clause(hello_world_clause: HelloWorldClause) -> HelloWorldClause {
+async fn handle_hello_world_clause(
+    hello_world_clause: HelloWorldClause,
+) -> Result<
+    HelloWorldClause,
+    aws_sdk_dynamodb::types::SdkError<aws_sdk_dynamodb::error::PutItemError>,
+> {
     // Initialize the AWS SDK for Rust
     let config = aws_config::load_from_env().await;
     let table_name = env::var("TABLE_NAME").expect("TABLE_NAME must be set");
@@ -59,15 +64,19 @@ async fn handle_hello_world_clause(hello_world_clause: HelloWorldClause) -> Hell
         .await;
 
     match result {
-        Ok(_) => println!("Successfully saved HelloWorldClause to DynamoDB: _class: {}, clause_id: {}, _identifier: {}, name: {}", hello_world_clause._class, hello_world_clause.clause_id, hello_world_clause._identifier, hello_world_clause.name),
-        Err(error) => println!("Error: {:?}", error),
-    };
-
-    HelloWorldClause {
-        _class: hello_world_clause._class,
-        clause_id: hello_world_clause.clause_id,
-        _identifier: hello_world_clause._identifier,
-        name: hello_world_clause.name,
+        Ok(_) => {
+            println!("Successfully saved HelloWorldClause to DynamoDB: _class: {}, clause_id: {}, _identifier: {}, name: {}", hello_world_clause._class, hello_world_clause.clause_id, hello_world_clause._identifier, hello_world_clause.name);
+            Ok(HelloWorldClause {
+                _class: hello_world_clause._class,
+                clause_id: hello_world_clause.clause_id,
+                _identifier: hello_world_clause._identifier,
+                name: hello_world_clause.name,
+            })
+        }
+        Err(error) => {
+            println!("Error: {:?}", error);
+            Err(error)
+        }
     }
 }
 
@@ -77,7 +86,12 @@ async fn function_handler(event: LambdaEvent<Request>) -> Result<ResponseType, E
             ResponseType::MyResponse(handle_my_request(my_request))
         }
         RequestType::HelloWorldClause(hello_world_clause) => {
-            ResponseType::HelloWorldClause(handle_hello_world_clause(hello_world_clause).await)
+            match handle_hello_world_clause(hello_world_clause).await {
+                Ok(hello_world_clause) => ResponseType::HelloWorldClause(hello_world_clause),
+                Err(error) => {
+                    return Err(lambda_runtime::Error::from(format!("Error: {:?}", error)))
+                }
+            }
         }
     };
 
