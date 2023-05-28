@@ -27,6 +27,13 @@ Resources:
       Runtime: provided.al2
       Architectures:
         - x86_64
+      Environment:  # Adding the environment variable for your table name
+        Variables:
+          TABLE_NAME: !Ref HelloWorldTable
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref HelloWorldTable
+            
   ContractApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
@@ -67,7 +74,12 @@ Resources:
       RestApiId: !Ref ContractApi
       Description: 'Deploy ContractApi'
       StageName: Prod
-
+  HelloWorldTable:  # This is your new SimpleTable resource
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: id
+        Type: String
 
 Outputs:
   HelloWorldApi:
@@ -79,3 +91,6 @@ Outputs:
   HelloWorldFunctionIamRole:
     Description: "Implicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
+  HelloWorldTable:
+    Description: "Hello World DynamoDB Table Name"
+    Value: !Ref HelloWorldTable

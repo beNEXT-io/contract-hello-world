@@ -1,6 +1,8 @@
+use aws_sdk_dynamodb::{model::AttributeValue, Client};
 use chrono::Utc;
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use serde::{Deserialize, Serialize};
+use std::env;
 
 use lib::org_accordproject_helloworld::*;
 
@@ -31,7 +33,36 @@ fn handle_my_request(my_request: MyRequest) -> MyResponse {
     }
 }
 
-fn handle_hello_world_clause(hello_world_clause: HelloWorldClause) -> HelloWorldClause {
+async fn handle_hello_world_clause(hello_world_clause: HelloWorldClause) -> HelloWorldClause {
+    // Initialize the AWS SDK for Rust
+    let config = aws_config::load_from_env().await;
+    let table_name = env::var("TABLE_NAME").expect("TABLE_NAME must be set");
+    let dynamodb_client = Client::new(&config);
+
+    let result = dynamodb_client
+        .put_item()
+        .table_name(table_name)
+        .item(
+            "id",
+            AttributeValue::S(hello_world_clause._identifier.clone()),
+        )
+        .item(
+            "clause_id",
+            AttributeValue::S(hello_world_clause.clause_id.clone()),
+        )
+        .item(
+            "_class",
+            AttributeValue::S(hello_world_clause._class.clone()),
+        )
+        .item("name", AttributeValue::S(hello_world_clause.name.clone()))
+        .send()
+        .await;
+
+    match result {
+        Ok(_) => println!("Successfully saved HelloWorldClause to DynamoDB: _class: {}, clause_id: {}, _identifier: {}, name: {}", hello_world_clause._class, hello_world_clause.clause_id, hello_world_clause._identifier, hello_world_clause.name),
+        Err(error) => println!("Error: {:?}", error),
+    };
+
     HelloWorldClause {
         _class: hello_world_clause._class,
         clause_id: hello_world_clause.clause_id,
@@ -46,7 +77,7 @@ async fn function_handler(event: LambdaEvent<Request>) -> Result<ResponseType, E
             ResponseType::MyResponse(handle_my_request(my_request))
         }
         RequestType::HelloWorldClause(hello_world_clause) => {
-            ResponseType::HelloWorldClause(handle_hello_world_clause(hello_world_clause))
+            ResponseType::HelloWorldClause(handle_hello_world_clause(hello_world_clause).await)
         }
     };
 
