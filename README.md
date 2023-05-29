@@ -58,7 +58,7 @@ You can test your deployed app by sending a request to the Contract's API Gatewa
 
 ### 1. HelloWorldClause 
 
-Used to populate the contract with the contract data. Receives bacck a copy of the stored data.
+Used to populate the contract with the contract data. Receives back a copy of the stored data.
 
 ```
 curl --request POST \
