@@ -1,4 +1,4 @@
-use aws_sdk_dynamodb::{model::AttributeValue, Client};
+use aws_sdk_dynamodb::{types::AttributeValue, Client};
 use chrono::Utc;
 use lambda_runtime::{run, service_fn, Error, LambdaEvent};
 use serde::{Deserialize, Serialize};
@@ -66,7 +66,7 @@ async fn handle_hello_world_clause(
     hello_world_clause: HelloWorldClause,
 ) -> Result<
     HelloWorldClause,
-    aws_sdk_dynamodb::types::SdkError<aws_sdk_dynamodb::error::PutItemError>,
+    aws_sdk_dynamodb::error::SdkError<aws_sdk_dynamodb::operation::put_item::PutItemError>,
 > {
     // Initialize the AWS SDK for Rust
     let config = aws_config::load_from_env().await;
