@@ -16,15 +16,15 @@ During the deployment process the following AWS infrastructure is created:
 
 * If this your first time installing the AWS SAM CLI then you'll need to setup an account on Amazon Web Services. This includes:
 
-- Signing up for an AWS account.
+  - Signing up for an AWS account.
 
-- Creating an administrative IAM user.
+  - Creating an administrative IAM user.
 
-- Creating an access key ID and secret access key.
+  - Creating an access key ID and secret access key.
 
-- Installing the AWS CLI.
+  - Installing the AWS CLI.
 
-- Configuring AWS credentials.
+  - Configuring AWS credentials.
 
 Please visit [AWS SAM prerequisites](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/prerequisites.html) to continue.
 
