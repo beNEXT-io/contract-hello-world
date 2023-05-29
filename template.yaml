@@ -9,7 +9,7 @@ Parameters:
   ContractId:
     Type: String
     Description: The unique Contract ID - used for the table name and the API path part.
-    Default: hello-NibWg2
+    Default: 2QSvN6mSDYAuse8tFR0k39SlFGl
 
 Globals:
   Function:
@@ -119,10 +119,10 @@ Resources:
     Properties:
       TableName: !Ref ContractId
       AttributeDefinitions:
-        - AttributeName: _identifier
+        - AttributeName: id
           AttributeType: S
       KeySchema:
-        - AttributeName: _identifier
+        - AttributeName: id
           KeyType: HASH
       ProvisionedThroughput:
         ReadCapacityUnits: 5

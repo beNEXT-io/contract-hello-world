@@ -47,6 +47,7 @@ async fn handle_hello_world_clause(
     let result = dynamodb_client
         .put_item()
         .table_name(table_name)
+        .item("id", AttributeValue::S("data".to_string()))
         .item(
             "_identifier",
             AttributeValue::S(hello_world_clause._identifier.clone()),
