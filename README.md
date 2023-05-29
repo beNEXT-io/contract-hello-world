@@ -33,7 +33,7 @@ Please visit [AWS SAM prerequisites](https://docs.aws.amazon.com/serverless-appl
 To deploy the application, you need the folllowing tools:
 
 * SAM CLI - [Install the SAM CLI](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install.html)
-* Docker (for local testing) - [Install Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
+* Docker (optional - for local testing only) - [Install Docker community edition](https://hub.docker.com/search/?type=edition&offering=community)
 * [Rust](https://www.rust-lang.org/) version 1.64.0 or newer
 * [cargo-lambda](https://github.com/cargo-lambda/cargo-lambda) for cross-compilation
 
