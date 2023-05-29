@@ -68,12 +68,24 @@ curl --request POST \
     "request": {
         "HelloWorldClause": {
   				"$class": "org.accordproject.helloworld.HelloWorldClause",
-  				"name": "Fred Blogs",
+  				"name": "Fred Bloggs",
   				"clauseId": "8d16efc9-96af-458e-b7f2-e3367403d37e",
   				"$identifier": "8d16efc9-96af-458e-b7f2-e3367403d37e"
 			}
     }
 }'
+```
+
+**Example Response**
+```
+{
+	"HelloWorldClause": {
+		"$class": "org.accordproject.helloworld.HelloWorldClause",
+		"name": "Fred Bloggs",
+		"clauseId": "8d16efc9-96af-458e-b7f2-e3367403d37e",
+		"$identifier": "8d16efc9-96af-458e-b7f2-e3367403d37e"
+	}
+}
 ```
 
 ### 2. MyRequest
@@ -88,13 +100,23 @@ curl --request POST \
     "request": {
         "MyRequest": {
             "$class": "org.accordproject.helloworld.MyRequest",
-            "input": "Yes Minister!!",
+            "input": "Accord Project",
             "$timestamp": "2023-05-24T14:56:45.123+0000"
         }
     }
 }'
 ```
 
+**Example Response**
+```
+{
+	"MyResponse": {
+		"$class": "org.accordproject.helloworld.MyRequest",
+		"output": "Hello Jack Walnut - Accord Project",
+		"$timestamp": "2023-05-29T13:40:22.522341554+00:00"
+	}
+}
+```
 
 ## Fetch, tail, and filter Lambda function logs
 
