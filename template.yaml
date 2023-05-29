@@ -9,7 +9,10 @@ Parameters:
   ContractId:
     Type: String
     Description: The unique Contract ID - used for the table name and the API path part.
-    Default: 2QSvN6mSDYAuse8tFR0k39SlFGl
+    Default: 2QSvN6mSDYAuse8tFR0k39SlFGl 
+    # IMPORTANT: The default ContractId ** MUST BE UNIQUE ** as it is the name used for the DynamoDB Table.
+    #            DynamoDB Tables need to be unique to an AWS accounts region.
+    #            SAM CLI will throw an exception if a DynamoDB Table already exists with the same name.
 
 Globals:
   Function:
