@@ -48,7 +48,7 @@ async fn handle_hello_world_clause(
         .put_item()
         .table_name(table_name)
         .item(
-            "id",
+            "_identifier",
             AttributeValue::S(hello_world_clause._identifier.clone()),
         )
         .item(

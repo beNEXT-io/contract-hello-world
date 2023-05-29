@@ -5,6 +5,12 @@ Description: >
 
   Sample SAM Template for hello-world
 
+Parameters:
+  ContractId:
+    Type: String
+    Description: The unique Contract ID - used for the table name and the API path part.
+    Default: hello-NibWg2
+
 Globals:
   Function:
     Timeout: 3
@@ -25,14 +31,39 @@ Resources:
       CodeUri: ./rust_app
       Handler: bootstrap
       Runtime: provided.al2
+      Role: !GetAtt HelloWorldFunctionRole.Arn
       Architectures:
         - x86_64
-      Environment:  # Adding the environment variable for your table name
+      Environment:
         Variables:
-          TABLE_NAME: !Ref HelloWorldTable
+          TABLE_NAME: !Ref ContractId
+
+  HelloWorldFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
       Policies:
-        - DynamoDBCrudPolicy:
-            TableName: !Ref HelloWorldTable
+        - PolicyName: DynamoDBCrudPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - dynamodb:BatchGetItem
+                  - dynamodb:GetItem
+                  - dynamodb:Query
+                  - dynamodb:Scan
+                  - dynamodb:BatchWriteItem
+                  - dynamodb:PutItem
+                  - dynamodb:UpdateItem
+                  - dynamodb:DeleteItem
+                Resource: !GetAtt HelloWorldTable.Arn
             
   ContractApi:
     Type: AWS::ApiGateway::RestApi
@@ -43,7 +74,7 @@ Resources:
     Properties:
       RestApiId: !Ref ContractApi
       ParentId: !GetAtt ContractApi.RootResourceId
-      PathPart: hello
+      PathPart: !Ref ContractId
   HelloWorldMethod:
     Type: AWS::ApiGateway::Method
     Properties:
@@ -66,6 +97,7 @@ Resources:
             }
       MethodResponses:
         - StatusCode: 200
+
   HelloWorldFunctionInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
@@ -73,6 +105,7 @@ Resources:
       Action: lambda:InvokeFunction
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ContractApi}/*/*/*
+
   HelloWorldDeployment:
     Type: AWS::ApiGateway::Deployment
     DependsOn: HelloWorldMethod
@@ -80,22 +113,30 @@ Resources:
       RestApiId: !Ref ContractApi
       Description: 'Deploy ContractApi'
       StageName: Prod
+
   HelloWorldTable:
-    Type: AWS::Serverless::SimpleTable
+    Type: AWS::DynamoDB::Table
     Properties:
-      PrimaryKey:
-        Name: id
-        Type: String
+      TableName: !Ref ContractId
+      AttributeDefinitions:
+        - AttributeName: _identifier
+          AttributeType: S
+      KeySchema:
+        - AttributeName: _identifier
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
 
 Outputs:
   HelloWorldApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ContractApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
+    Value: !Sub "https://${ContractApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/${ContractId}/"
   HelloWorldFunction:
     Description: "Hello World Lambda Function ARN"
     Value: !GetAtt HelloWorldFunction.Arn
   HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
+    Description: "Explicit IAM Role created for Hello World function"
     Value: !GetAtt HelloWorldFunctionRole.Arn
   HelloWorldTable:
     Description: "Hello World DynamoDB Table Name"
